@@ -4,24 +4,22 @@ from collections import Counter
 from random import choice
 import sys
 
-class TILE:
-    BACKGROUND = (18, 18, 19)
-    INCORRECT = (58, 58, 58)
-    WRONG_PLACE = (181, 159, 59)
-    CORRECT = (83, 141, 78)
+from guess import Guess
+from tile import TILE
+
 
 class Wordle:
-    def __init__(self, words="actual_words.txt"):
+    def __init__(self, words="data/actual_words.txt"):
         self.previous_scores = {}
 
         if len(sys.argv) > 1:
             if sys.argv[1] == "-pro":
-                words = "five_letter_words.txt"
+                words = "data/five_letter_words.txt"
 
         with open(words, 'r') as file:
             self.words = file.read().split("\n")
 
-        with open('cookie.txt', 'r') as file:
+        with open('data/cookie.txt', 'r') as file:
             f = file.read().split("\n")
             for entry in f[:-1]:
                 score, number = entry.split(":")
@@ -39,6 +37,8 @@ class Wordle:
                 
         self.target_word = choice(self.words).upper()
         print(self.target_word)
+
+        self.guess = Guess(self.words)
 
     def display(self, screen):
         font = pygame.font.Font('freesansbold.ttf', 60)
@@ -129,16 +129,23 @@ class Wordle:
         if row == 5:
             self.done = True
             self.previous_scores[7] += 1
+            return
         
         if self.done:
             self.update_cookies()
+            return
+
+        possible_words = self.guess.data("".join(self.guesses[row]), self.results[row])
+        print(possible_words)
+        print(len(possible_words))
+        self.guess.update_world_list(possible_words)
 
     def update_cookies(self):
         result = ""
         for k, v in self.previous_scores.items():
             result += f"{k}:{v}\n"
         
-        with open("cookie.txt", "w") as f:
+        with open("data/cookie.txt", "w") as f:
             f.write(result)
 
 
