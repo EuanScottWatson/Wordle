@@ -136,7 +136,6 @@ class Wordle:
             self.done = True
             self.previous_scores[7] += 1
             print(f"The word was: {self.target_word}")
-            return
         
         if self.done:
             self.update_cookies()
@@ -149,11 +148,17 @@ class Wordle:
 
     def update_cookies(self):
         result = ""
+        total_games = sum(self.previous_scores.values())
+        score = 0
         for k, v in self.previous_scores.items():
             result += f"{k}:{v}\n"
+            score += k * v
         
         with open("data/cookie.txt", "w") as f:
             f.write(result)
+
+        print(f"Average score is: {score/total_games}")
+
 
 
 def main():
