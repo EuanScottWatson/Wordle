@@ -4,7 +4,7 @@ from collections import Counter
 from random import choice
 import sys
 
-from guess import Guess
+from guess import *
 from tile import TILE
 
 
@@ -39,6 +39,7 @@ class Wordle:
         # print(self.target_word)
 
         self.guess = Guess(self.words)
+        self.bad_letters = []
 
     def display(self, screen):
         font = pygame.font.Font('freesansbold.ttf', 60)
@@ -95,7 +96,8 @@ class Wordle:
             return
         row = self.next[0]
 
-        if "".join(self.guesses[row]).lower() not in self.words:
+        guess = "".join(self.guesses[row])
+        if guess.lower() not in self.words:
             self.guesses[row] = [" " for _ in range(5)]
             self.next[1] = 0
             self.timer = 60
@@ -122,6 +124,10 @@ class Wordle:
                 letters[letter] -= 1
         self.next = [row + 1, 0]
 
+        for (l, r) in zip(guess, self.results[row]):
+            if r == TILE.INCORRECT and l not in letters.keys():
+                self.bad_letters.append(l)
+
         if self.results[row] == [TILE.CORRECT for _ in range(5)]:
             self.done = True
             self.win = True
@@ -136,7 +142,7 @@ class Wordle:
             self.update_cookies()
             return
 
-        possible_words = self.guess.data("".join(self.guesses[row]), self.results[row])
+        possible_words = self.guess.data(guess, self.results[row], self.bad_letters)
         print(possible_words)
         print(len(possible_words))
         self.guess.update_world_list(possible_words)

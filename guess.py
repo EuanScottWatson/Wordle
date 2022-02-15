@@ -8,7 +8,7 @@ class Guess:
     def update_world_list(self, world_list):
         self.word_list = world_list
 
-    def data(self, guess, results):
+    def data(self, guess, results, bad_letters=[]):
         new_words = []
         for w in self.word_list:
             if w == guess:
@@ -20,6 +20,9 @@ class Guess:
                     good = False
 
                 if result == TILE.WRONG_PLACE and guess[i] not in word:
+                    good = False
+
+                if word[i] in bad_letters:
                     good = False
             
             if good:
