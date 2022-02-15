@@ -11,6 +11,8 @@ class Guess:
     def data(self, guess, results):
         new_words = []
         for w in self.word_list:
+            if w == guess:
+                continue
             word = w.upper()
             good = True
             for i, result in enumerate(results):
@@ -31,8 +33,8 @@ def main():
     with open("data/actual_words.txt", 'r') as file:
             words = file.read().split("\n")
     
-    guess = "DEBBY"
-    results = [TILE.CORRECT, TILE.CORRECT, TILE.WRONG_PLACE, TILE.INCORRECT, TILE.INCORRECT]
+    guess = "CHEER"
+    results = [TILE.CORRECT, TILE.INCORRECT, TILE.INCORRECT, TILE.CORRECT, TILE.INCORRECT]
 
     g = Guess(world_list=words)
     print(g.data(guess, results))

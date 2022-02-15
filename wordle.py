@@ -36,7 +36,7 @@ class Wordle:
         self.timer = 0
                 
         self.target_word = choice(self.words).upper()
-        print(self.target_word)
+        # print(self.target_word)
 
         self.guess = Guess(self.words)
 
@@ -129,6 +129,7 @@ class Wordle:
         if row == 5:
             self.done = True
             self.previous_scores[7] += 1
+            print(f"The word was: {self.target_word}")
             return
         
         if self.done:
