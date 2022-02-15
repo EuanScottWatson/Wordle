@@ -132,7 +132,7 @@ class Wordle:
             self.done = True
             self.win = True
             self.previous_scores[row + 1] += 1
-        if row == 5:
+        elif row == 5:
             self.done = True
             self.previous_scores[7] += 1
             print(f"The word was: {self.target_word}")
