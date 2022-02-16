@@ -34,7 +34,7 @@ class Wordle:
                 if arg == "-pro":
                     words = "data/five_letter_words.txt"
         
-        print(f"Using helper: {self.helper}")
+        # print(f"Using helper: {self.helper}")
 
         with open(words, 'r') as file:
             self.words = file.read().split("\n")
@@ -57,6 +57,8 @@ class Wordle:
         self.results = [[TILE.BACKGROUND for _ in range(5)] for _ in range(6)]
         self.next = [0, 0]
         self.win = False
+
+        self.suggested_words = self.words
                 
         self.target_word = choice(self.words).upper()
         # print(self.target_word)
@@ -74,7 +76,7 @@ class Wordle:
             self.guesses[i][j] = letter
             self.next[1] = j + 1
 
-    def enter_guess(self):
+    def enter_guess(self, benchmarking=False):
         '''
             Returns: -1: word not in list
                       0: word incomplete
@@ -120,13 +122,19 @@ class Wordle:
         elif row == 5:
             done = True
             self.previous_scores[7] += 1
-            print(f"The word was: {self.target_word}")
+            if not benchmarking:
+                print(f"The word was: {self.target_word}")
         
         if done:
-            self.update_cookies()
+            if not benchmarking:
+                self.update_cookies()
             return ReturnCodes.FINISHED
 
         self.helper_options[self.helper](guess, row, letters)
+
+        if not benchmarking:
+            print(self.suggested_words)
+            print(len(self.suggested_words))
 
         return ReturnCodes.NEXT
 
@@ -147,21 +155,16 @@ class Wordle:
         for (l, r) in zip(guess, self.results[row]):
             if r == TILE.INCORRECT and l not in letters.keys():
                 self.bad_letters.append(l)
-        possible_words = self.guess.guess(guess, self.results[row], self.bad_letters)
-        print(possible_words)
-        print(len(possible_words))
+        self.suggested_words = self.guess.guess(guess, self.results[row], self.bad_letters)
 
     def smarter_help(self, guess, row, letters):
-        print("Smart")
         for (i, (l, r)) in enumerate(zip(guess, self.results[row])):
             if (r, i) not in self.data[l]:
                 if r == TILE.INCORRECT and len(self.data[l]) != 0:
                     continue
                 self.data[l].append((r, i))
 
-        possible_words = self.guess.guess(guess, self.data)
-        print(possible_words)
-        print(len(possible_words))
+        self.suggested_words = self.guess.guess(guess, self.data)
 
 
 def main():
