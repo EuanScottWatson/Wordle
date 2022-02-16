@@ -1,5 +1,3 @@
-import pygame, os
-from pygame.locals import *
 from collections import Counter
 from random import choice
 import sys
@@ -12,6 +10,13 @@ from tile import TILE
 class Helper(Enum):
     SIMPLE="simple"
     SMARTER="smarter"
+
+
+class ReturnCodes(Enum):
+    BAD_WORD=-1
+    INCOMPLETE=0
+    NEXT=1
+    FINISHED=2
 
 
 class Wordle:
@@ -51,9 +56,7 @@ class Wordle:
         self.guesses = [[" " for _ in range(5)] for _ in range(6)]
         self.results = [[TILE.BACKGROUND for _ in range(5)] for _ in range(6)]
         self.next = [0, 0]
-        self.done = False
         self.win = False
-        self.timer = 0
                 
         self.target_word = choice(self.words).upper()
         # print(self.target_word)
@@ -65,67 +68,23 @@ class Wordle:
             self.guess = Simple(self.words)
             self.bad_letters = []
 
-    def display(self, screen):
-        font = pygame.font.Font('freesansbold.ttf', 60)
-        for i in range(6):
-            for j in range(5):
-                rect = pygame.Rect(30 + 110 * j, 25 + 110 * i, 100, 100)
-                pygame.draw.rect(screen, self.results[i][j], rect, 0, 2)
-                if self.results[i][j] == TILE.BACKGROUND:
-                    pygame.draw.rect(screen, TILE.INCORRECT, rect, 2, 2)
-
-                guess = font.render(self.guesses[i][j], True, (255, 255, 255))
-                gues_rect = guess.get_rect(center=(30 + 110 * j + 50, 25 + 110 * i + 55))
-                screen.blit(guess, gues_rect)
-        
-        if self.done or self.timer > 0:
-            text = "Well Done!" if self.win else ("Not a word" if self.timer > 0 else "Unlucky")
-            guess = font.render(text, True, (255, 255, 255))
-            gues_rect = guess.get_rect(center=(300, 740))
-            screen.blit(guess, gues_rect)
-            self.timer -= 1
-
-    def events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return True
-            if event.type == KEYDOWN:
-                if event.key in range(97, 123):
-                    if self.next[1] < 5 and not self.done:
-                        i, j = self.next
-                        self.guesses[i][j] = chr(event.key - 32)
-                        self.next[1] = j + 1
-                if event.key == K_BACKSPACE:
-                    if self.next[1] > 0:
-                        i, j = self.next
-                        self.guesses[i][j - 1] = " "
-                        self.next[1] = j - 1
-                if event.key == K_RETURN:
-                    self.enter_guess()
-                if event.key == K_ESCAPE:
-                    return True
-                if event.key == K_TAB:
-                    self.start()
-
-    def display_screen(self, screen):
-        screen.fill((18, 18, 19))
-
-        self.display(screen)
-
-        pygame.display.update()
-        pygame.display.flip()
-
     def enter_guess(self):
+        '''
+            Returns: -1: word not in list
+                      0: word incomplete
+                      1: next guess
+                      2: game finished
+        '''
+        done = False
         if self.next[1] < 5 or self.next[0] == 6:
-            return
+            return ReturnCodes.INCOMPLETE
         row = self.next[0]
 
         guess = "".join(self.guesses[row])
         if guess.lower() not in self.words:
             self.guesses[row] = [" " for _ in range(5)]
             self.next[1] = 0
-            self.timer = 60
-            return
+            return ReturnCodes.BAD_WORD
 
         self.results[row] = [TILE.INCORRECT for _ in range(5)]
 
@@ -149,19 +108,21 @@ class Wordle:
         self.next = [row + 1, 0]
 
         if self.results[row] == [TILE.CORRECT for _ in range(5)]:
-            self.done = True
+            done = True
             self.win = True
             self.previous_scores[row + 1] += 1
         elif row == 5:
-            self.done = True
+            done = True
             self.previous_scores[7] += 1
             print(f"The word was: {self.target_word}")
         
-        if self.done:
+        if done:
             self.update_cookies()
-            return
+            return ReturnCodes.FINISHED
 
         self.helper_options[self.helper](guess, row, letters)
+
+        return ReturnCodes.NEXT
 
     def update_cookies(self):
         result = ""
@@ -197,27 +158,8 @@ class Wordle:
         print(len(possible_words))
 
 
-
 def main():
-    pygame.init()
-    pygame.font.init()
-    pygame.display.set_caption("Wordle")
-
-    os.environ['SDL_VIDEO_CENTERED'] = "True"
-
-    width, height = 600, 800
-
-    screen = pygame.display.set_mode((width, height))
-
-    done = False
-    clock = pygame.time.Clock()
-    wordle = Wordle()
-
-    while not done:
-        done = wordle.events()
-        wordle.display_screen(screen)
-
-        clock.tick(60)
+    pass
 
 
 if __name__ == "__main__":
