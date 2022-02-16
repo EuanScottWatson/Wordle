@@ -68,6 +68,12 @@ class Wordle:
             self.guess = Simple(self.words)
             self.bad_letters = []
 
+    def add_letter(self, letter):
+        if self.next[1] < 5:
+            i, j = self.next
+            self.guesses[i][j] = letter
+            self.next[1] = j + 1
+
     def enter_guess(self):
         '''
             Returns: -1: word not in list

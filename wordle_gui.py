@@ -1,17 +1,12 @@
 import pygame, os
 from pygame.locals import *
-from collections import Counter
-from random import choice
-import sys
-from enum import Enum
 
-from guess import *
 from wordle import *
 from tile import TILE
 
 
 class WordleGUI:
-    def __init__(self, words="data/actual_words.txt"):
+    def __init__(self):
         self.brain = Wordle()
         self.timer = 0
         self.done = False
@@ -41,12 +36,9 @@ class WordleGUI:
             if event.type == pygame.QUIT:
                 return True
             if event.type == KEYDOWN:
-                if event.key in range(97, 123):
-                    if self.brain.next[1] < 5 and not self.done:
-                        i, j = self.brain.next
-                        self.brain.guesses[i][j] = chr(event.key - 32)
-                        self.brain.next[1] = j + 1
-                if event.key == K_BACKSPACE:
+                if event.key in range(97, 123) and not self.done:
+                    self.brain.add_letter(chr(event.key - 32))
+                if event.key == K_BACKSPACE and not self.done:
                     if self.brain.next[1] > 0:
                         i, j = self.brain.next
                         self.brain.guesses[i][j - 1] = " "
