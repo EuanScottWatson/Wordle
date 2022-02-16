@@ -3,18 +3,33 @@ from pygame.locals import *
 from collections import Counter
 from random import choice
 import sys
+from enum import Enum
 
 from guess import *
 from tile import TILE
+
+
+class Helper(Enum):
+    SIMPLE="simple"
+    SMARTER="smarter"
 
 
 class Wordle:
     def __init__(self, words="data/actual_words.txt"):
         self.previous_scores = {}
 
+        self.helper = Helper.SMARTER
+        
         if len(sys.argv) > 1:
-            if sys.argv[1] == "-pro":
-                words = "data/five_letter_words.txt"
+            for arg in sys.argv:
+                if "-helper" in arg:
+                    (_, type) = arg.split("=")
+                    self.helper = Helper(type)
+
+                if arg == "-pro":
+                    words = "data/five_letter_words.txt"
+        
+        print(f"Using helper: {self.helper}")
 
         with open(words, 'r') as file:
             self.words = file.read().split("\n")
@@ -24,6 +39,11 @@ class Wordle:
             for entry in f[:-1]:
                 score, number = entry.split(":")
                 self.previous_scores[int(score)] = int(number)
+
+        self.helper_options = {
+            Helper.SMARTER: self.smarter_help,
+            Helper.SIMPLE: self.simple_help,
+        }
 
         self.start()
 
@@ -38,8 +58,12 @@ class Wordle:
         self.target_word = choice(self.words).upper()
         # print(self.target_word)
 
-        self.guess = Guess(self.words)
-        self.bad_letters = []
+        if self.helper == Helper.SMARTER:
+            self.guess = Smarter(self.words)
+            self.data = {chr(i): [] for i in range(65, 91)}
+        else:
+            self.guess = Simple(self.words)
+            self.bad_letters = []
 
     def display(self, screen):
         font = pygame.font.Font('freesansbold.ttf', 60)
@@ -124,10 +148,6 @@ class Wordle:
                 letters[letter] -= 1
         self.next = [row + 1, 0]
 
-        for (l, r) in zip(guess, self.results[row]):
-            if r == TILE.INCORRECT and l not in letters.keys():
-                self.bad_letters.append(l)
-
         if self.results[row] == [TILE.CORRECT for _ in range(5)]:
             self.done = True
             self.win = True
@@ -141,10 +161,7 @@ class Wordle:
             self.update_cookies()
             return
 
-        possible_words = self.guess.data(guess, self.results[row], self.bad_letters)
-        print(possible_words)
-        print(len(possible_words))
-        self.guess.update_world_list(possible_words)
+        self.helper_options[self.helper](guess, row, letters)
 
     def update_cookies(self):
         result = ""
@@ -158,6 +175,26 @@ class Wordle:
             f.write(result)
 
         print(f"Average score is: {score/total_games}")
+
+    def simple_help(self, guess, row, letters):
+        for (l, r) in zip(guess, self.results[row]):
+            if r == TILE.INCORRECT and l not in letters.keys():
+                self.bad_letters.append(l)
+        possible_words = self.guess.guess(guess, self.results[row], self.bad_letters)
+        print(possible_words)
+        print(len(possible_words))
+
+    def smarter_help(self, guess, row, letters):
+        print("Smart")
+        for (i, (l, r)) in enumerate(zip(guess, self.results[row])):
+            if (r, i) not in self.data[l]:
+                if r == TILE.INCORRECT and len(self.data[l]) != 0:
+                    continue
+                self.data[l].append((r, i))
+
+        possible_words = self.guess.guess(self.data)
+        print(possible_words)
+        print(len(possible_words))
 
 
 
