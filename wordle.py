@@ -61,6 +61,7 @@ class Wordle:
         self.suggested_words = self.words
                 
         self.target_word = choice(self.words).upper()
+        # self.target_word = "JUDGE"
         # print(self.target_word)
 
         if self.helper == Helper.SMARTER:
@@ -162,7 +163,12 @@ class Wordle:
             if (r, i) not in self.data[l]:
                 if r == TILE.INCORRECT and len(self.data[l]) != 0:
                     continue
+
+                if len(self.data[l]) > 0:
+                    self.data[l] = list(filter(lambda x: x[0] != TILE.INCORRECT, self.data[l]))
+
                 self.data[l].append((r, i))
+
 
         self.suggested_words = self.guess.guess(guess, self.data)
 
