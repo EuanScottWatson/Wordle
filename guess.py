@@ -39,11 +39,13 @@ class Smarter:
     def update_world_list(self, world_list):
         self.word_list = world_list
 
-    def guess(self, data):
+    def guess(self, guess, data):
         # data = {LETTER: [TILE, POSITION]}
         new_words = []
         for w in self.word_list:
             word = w.upper()
+            if word == guess:
+                continue
             good = True
             for (k, v) in data.items():
                 for (t, p) in v:

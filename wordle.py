@@ -192,7 +192,7 @@ class Wordle:
                     continue
                 self.data[l].append((r, i))
 
-        possible_words = self.guess.guess(self.data)
+        possible_words = self.guess.guess(guess, self.data)
         print(possible_words)
         print(len(possible_words))
 
