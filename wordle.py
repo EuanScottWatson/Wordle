@@ -20,10 +20,10 @@ class ReturnCodes(Enum):
 
 
 class Wordle:
-    def __init__(self, words="data/actual_words.txt"):
+    def __init__(self, words="data/actual_words.txt", helper=Helper.SMARTER):
         self.previous_scores = {}
 
-        self.helper = Helper.SMARTER
+        self.helper = helper
         
         if len(sys.argv) > 1:
             for arg in sys.argv:
@@ -61,7 +61,6 @@ class Wordle:
         self.suggested_words = self.words
                 
         self.target_word = choice(self.words).upper()
-        # self.target_word = "JUDGE"
         # print(self.target_word)
 
         if self.helper == Helper.SMARTER:
