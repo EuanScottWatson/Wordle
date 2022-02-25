@@ -1,7 +1,6 @@
 from itertools import product
 from math import comb
 import math
-from turtle import pos
 import matplotlib.pyplot as plt
 
 from guess import Smarter
@@ -9,7 +8,7 @@ from tile import TILE
 from benchmark import printProgressBar
 
 class Generator:
-    def __init__(self, words="data/actual_words.txt") -> None:
+    def __init__(self, words="data/actual_words.txt"):
         with open(words, 'r') as file:
             self.words = file.read().split("\n")
 
