@@ -40,7 +40,7 @@ class Smarter:
     def update_world_list(self, world_list):
         self.word_list = world_list
 
-    def guess(self, guess, data):
+    def guess(self, guess, data, update=True):
         # data = {LETTER: [TILE, POSITION]}
         new_words = []
         for w in self.word_list:
@@ -62,9 +62,9 @@ class Smarter:
             if good:
                 new_words.append(word)
 
-        self.update_world_list(new_words)
+        if update:
+            self.update_world_list(new_words)
         return new_words
-
 
 
 def main():
