@@ -56,6 +56,7 @@ class Wordle:
         self.guesses = [[" " for _ in range(5)] for _ in range(6)]
         self.results = [[TILE.BACKGROUND for _ in range(5)] for _ in range(6)]
         self.next = [0, 0]
+        self.next_result = [0, 0]
         self.win = False
 
         self.suggested_words = self.words
@@ -69,6 +70,9 @@ class Wordle:
         else:
             self.guess = Simple(self.words)
             self.bad_letters = []
+    
+    def row_typed(self):
+        return self.next[1] == 5
 
     def add_letter(self, letter):
         if self.next[1] < 5:
@@ -76,13 +80,30 @@ class Wordle:
             self.guesses[i][j] = letter
             self.next[1] = j + 1
 
-    def enter_guess(self, benchmarking=False):
+    def add_result(self, result):
+        if self.next_result[1] < 5:
+            i, j = self.next_result
+            res = TILE.BACKGROUND
+            if result == 0:
+                res = TILE.INCORRECT
+            elif result == 1:
+                res = TILE.WRONG_PLACE
+            else:
+                res = TILE.CORRECT
+            
+            self.results[i][j] = res
+            self.next_result[1] = j + 1
+
+    def enter_guess(self, benchmarking=False, user_guessing=False):
         '''
             Returns: -1: word not in list
                       0: word incomplete
                       1: next guess
                       2: game finished
         '''
+        if user_guessing:
+            return self.guessing_help()
+
         done = False
         if self.next[1] < 5 or self.next[0] == 6:
             return ReturnCodes.INCOMPLETE
@@ -114,6 +135,7 @@ class Wordle:
                 self.results[row][i] = TILE.WRONG_PLACE
                 letters[letter] -= 1
         self.next = [row + 1, 0]
+        self.next_result = [row + 1, 0]
 
         if self.results[row] == [TILE.CORRECT for _ in range(5)]:
             done = True
@@ -135,6 +157,28 @@ class Wordle:
         if not benchmarking:
             print(self.suggested_words)
             print(len(self.suggested_words))
+
+        return ReturnCodes.NEXT
+
+    def guessing_help(self):
+        row = self.next_result[0]
+
+        if self.results[row] == [TILE.CORRECT for _ in range(5)]:
+            self.win = True
+            return ReturnCodes.FINISHED
+        if row == 5:
+            return ReturnCodes.FINISHED
+        if self.next_result[1] < 5 or self.next_result[0] == 6:
+            return ReturnCodes.INCOMPLETE        
+
+        guess = "".join(self.guesses[row])
+
+        self.helper_options[self.helper](guess, row, [])
+        print(self.suggested_words)
+        print(len(self.suggested_words))
+
+        self.next = [row + 1, 0]
+        self.next_result = [row + 1, 0]
 
         return ReturnCodes.NEXT
 

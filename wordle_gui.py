@@ -1,5 +1,6 @@
 import pygame, os
 from pygame.locals import *
+import sys
 
 from wordle import *
 from tile import TILE
@@ -10,6 +11,8 @@ class WordleGUI:
         self.brain = Wordle()
         self.timer = 0
         self.done = False
+
+        self.guess = "-guess" in sys.argv
 
     def display(self, screen):
         font = pygame.font.Font('freesansbold.ttf', 60)
@@ -38,11 +41,17 @@ class WordleGUI:
             if event.type == KEYDOWN:
                 if event.key in range(97, 123) and not self.done:
                     self.brain.add_letter(chr(event.key - 32))
+                if event.key in range(48, 51) and self.brain.row_typed():
+                    self.brain.add_result(int(chr(event.key)))
                 if event.key == K_BACKSPACE and not self.done:
-                    if self.brain.next[1] > 0:
+                    if self.brain.next[1] > 0 and self.brain.next_result[1] == 0:
                         i, j = self.brain.next
                         self.brain.guesses[i][j - 1] = " "
                         self.brain.next[1] = j - 1
+                    if self.brain.next_result[1] > 0:
+                        i, j = self.brain.next_result
+                        self.brain.results[i][j - 1] = TILE.BACKGROUND
+                        self.brain.next_result[1] = j - 1
                 if event.key == K_RETURN:
                     self.enter_guess()
                 if event.key == K_ESCAPE:
@@ -60,7 +69,7 @@ class WordleGUI:
         pygame.display.flip()
 
     def enter_guess(self):
-        returnValue = self.brain.enter_guess()
+        returnValue = self.brain.enter_guess(user_guessing=self.guess)
         if returnValue == ReturnCodes.FINISHED:
             self.done = True
         elif returnValue == ReturnCodes.BAD_WORD:
