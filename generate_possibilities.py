@@ -9,8 +9,7 @@ from tile import TILE
 from benchmark import printProgressBar
 
 class Generator:
-    def __init__(self, word, words="data/actual_words.txt") -> None:
-        self.word = word.upper()
+    def __init__(self, words="data/actual_words.txt") -> None:
         with open(words, 'r') as file:
             self.words = file.read().split("\n")
 
@@ -52,7 +51,7 @@ class Generator:
 
 
 def main():
-    g = Generator("TARES", words="data/five_letter_words.txt")
+    g = Generator(words="data/five_letter_words.txt")
     g.generate()
 
 
