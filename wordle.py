@@ -7,11 +7,6 @@ from guess import *
 from tile import TILE
 
 
-class Helper(Enum):
-    SIMPLE="simple"
-    SMARTER="smarter"
-
-
 class ReturnCodes(Enum):
     BAD_WORD=-1
     INCOMPLETE=0
@@ -20,16 +15,13 @@ class ReturnCodes(Enum):
 
 
 class Wordle:
-    def __init__(self, words="data/actual_words.txt", helper=Helper.SMARTER):
+    def __init__(self, words="data/actual_words.txt"):
         self.previous_scores = {}
-
-        self.helper = helper
         
         if len(sys.argv) > 1:
             for arg in sys.argv:
                 if "-helper" in arg:
                     (_, type) = arg.split("=")
-                    self.helper = Helper(type)
 
                 if arg == "-pro":
                     words = "data/five_letter_words.txt"
@@ -45,11 +37,6 @@ class Wordle:
                 score, number = entry.split(":")
                 self.previous_scores[int(score)] = int(number)
 
-        self.helper_options = {
-            Helper.SMARTER: self.smarter_help,
-            Helper.SIMPLE: self.simple_help,
-        }
-
         self.start()
 
     def start(self):
@@ -64,12 +51,8 @@ class Wordle:
         self.target_word = choice(self.words).upper()
         # print(self.target_word)
 
-        if self.helper == Helper.SMARTER:
-            self.guess = Smarter(self.words)
-            self.data = {chr(i): [] for i in range(65, 91)}
-        else:
-            self.guess = Simple(self.words)
-            self.bad_letters = []
+        self.guess = Smarter(self.words)
+        self.data = {chr(i): [] for i in range(65, 91)}
     
     def row_typed(self):
         return self.next[1] == 5
@@ -152,7 +135,7 @@ class Wordle:
                 self.update_cookies()
             return ReturnCodes.FINISHED
 
-        self.helper_options[self.helper](guess, row, letters)
+        self.smarter_help(guess, row)
 
         if not benchmarking:
             print(self.suggested_words)
@@ -173,7 +156,7 @@ class Wordle:
 
         guess = "".join(self.guesses[row])
 
-        self.helper_options[self.helper](guess, row, [])
+        self.smarter_help(guess, row)
         print(self.suggested_words)
         print(len(self.suggested_words))
 
@@ -195,13 +178,7 @@ class Wordle:
 
         print(f"Average score is: {score/total_games}")
 
-    def simple_help(self, guess, row, letters):
-        for (l, r) in zip(guess, self.results[row]):
-            if r == TILE.INCORRECT and l not in letters.keys():
-                self.bad_letters.append(l)
-        self.suggested_words = self.guess.guess(guess, self.results[row], self.bad_letters)
-
-    def smarter_help(self, guess, row, letters):
+    def smarter_help(self, guess, row):
         for (i, (l, r)) in enumerate(zip(guess, self.results[row])):
             if (r, i) not in self.data[l]:
                 if r == TILE.INCORRECT and len(self.data[l]) != 0:

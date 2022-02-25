@@ -2,6 +2,7 @@ from tile import TILE
 
 
 class Simple:
+    # A simple helper which only takes in incorrect letters and doesn't regard wrongly placed letters
     def __init__(self, world_list):
         self.word_list = world_list
 
@@ -67,19 +68,7 @@ class Smarter:
 
 
 def main():
-    words = []
-    with open("data/actual_words.txt", 'r') as file:
-            words = file.read().split("\n")
-    
-    guess = "SNAIL"
-    results = [TILE.WRONG_PLACE, TILE.INCORRECT, TILE.CORRECT, TILE.CORRECT, TILE.INCORRECT]
-    bad_letters = ["S", "N", "I", "R", "Y", "D", "T"]
-    data = {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': [], 'K': [], 'L': [], 'M': [], 'N': [], 'O': [], 'P': [], 'Q': [], 'R': [], 'S': [], 'T': [], 'U': [], 'V': [], 'W': [], 'X': [], 'Y': [], 'Z': []}
-
-    # words = ['ABLED', 'ADULT', 'AFOUL', 'AGLOW', 'ALBUM', 'ALGAE', 'ALLOT', 'ALLOW', 'ALOFT', 'ALOOF', 'ALOUD', 'ALPHA', 'AMBLE', 'AMPLE', 'APPLE', 'ATOLL', 'AWFUL', 'BAGEL', 'BLACK', 'BLADE', 'BLAME', 'BLAZE', 'BLEAK', 'BLEAT', 'BLOAT', 'CABAL', 'CABLE', 'CAMEL', 'CAULK', 'CHALK', 'CLACK', 'CLAMP', 'CLEAT', 'CLOAK', 'DEALT', 'DECAL', 'DELTA', 'EAGLE', 'ECLAT', 'ELATE', 'EQUAL', 'EXALT', 'FABLE', 'FATAL', 'FAULT', 'FECAL', 'FELLA', 'FETAL', 'FLACK', 'FLAKE', 'FLAME', 'FLOAT', 'FOCAL', 'GAVEL', 'GLADE', 'GLAZE', 'GLEAM', 'GLOAT', 'HALVE', 'HAZEL', 'KOALA', 'LABEL', 'LADLE', 'LAPEL', 'LATCH', 'LATHE', 'LATTE', 'LAUGH', 'LEACH', 'LEAPT', 'LEAVE', 'LEGAL', 'LLAMA', 'LOATH', 'LOCAL', 'MAPLE', 'MEDAL', 'METAL', 'MODAL', 'OCTAL', 'OFFAL', 'PAPAL', 'PEDAL', 'PETAL', 'PLACE', 'PLATE', 'PLAZA', 'PLEAD', 'PLEAT', 'POLKA', 'PUPAL', 'QUALM', 'TABLE', 'TOTAL', 'TUBAL', 'VALET', 'VALUE', 'VALVE', 'VAULT', 'VOCAL', 'WALTZ', 'WHALE']
-    # words = ['BUYER', 'ABLED', 'LEAST']
-    g = Smarter(world_list=words)
-    print(g.guess(guess, data))
+    pass
 
 if __name__ == "__main__":
     main()
