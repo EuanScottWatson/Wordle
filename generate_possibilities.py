@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from guess import Smarter
 from tile import TILE
+from benchmark import printProgressBar
 
 class Generator:
     def __init__(self, word, words="data/actual_words.txt") -> None:
@@ -31,19 +32,23 @@ class Generator:
 
     def generate(self):
         total_words = len(self.words)
-        probabilities = []
-        for comb in self.combinations:
-            data = {self.word[i]: [(comb[i], i)] for i in range(5)}
+        word_information = []
+        for i, word in enumerate(self.words):
+            word = word.upper()
+            probabilities = []
+            for comb in self.combinations:
+                data = {word[i]: [(comb[i], i)] for i in range(5)}
 
-            words = self.smart.guess(self.word, data, update=False)
-            probabilities.append(len(words) / total_words)
-        
-        probabilities.sort(reverse=True)
-        information = round(sum((x * math.log2(1 / x)) for x in filter(lambda x: x != 0, probabilities)), 2)
-        print(f"The information gained from {self.word} was {information} bits")
+                words = self.smart.guess(word, data, update=False)
+                probabilities.append(len(words) / total_words)
+            
+            probabilities.sort(reverse=True)
+            information = round(sum((x * math.log2(1 / x)) for x in filter(lambda x: x != 0, probabilities)), 2)
+            printProgressBar(i + 1, total_words, suffix=f"{word} = {information} bits")
+            word_information.append((word, information))
 
-        # plt.plot(probabilities)
-        # plt.show()
+        with open('information/uniform_information.txt', 'w') as fp:
+            fp.write('\n'.join('%s, %s' % x for x in word_information))
 
 
 def main():
