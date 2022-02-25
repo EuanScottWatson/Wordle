@@ -11,4 +11,5 @@ You can use the `-guess` flag if you are wanting to enter in an actual Wordle's 
 * 1 = Wrongly placed letter
 * 2 = Correct letter <br>
 
-Then press enter to submit the data.
+Then press enter to submit the data. Here is an example game: <br>
+<img src="data/game.png" height="350">
