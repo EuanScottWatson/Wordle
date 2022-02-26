@@ -3,6 +3,7 @@ from math import comb
 import math
 import matplotlib.pyplot as plt
 import threading
+import sys
 
 from guess import Smarter
 from tile import TILE
@@ -62,6 +63,11 @@ def main():
 
     total_words = len(words)
     total_threads = 4
+    for arg in sys.argv:
+        if "-threads" in arg:
+            _, t = arg.split("=")
+            total_threads = int(t)
+    
     slices = total_words // total_threads
 
     ts = []
