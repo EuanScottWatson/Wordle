@@ -15,19 +15,15 @@ class ReturnCodes(Enum):
 
 
 class Wordle:
+    # The brain of the Wordle game
     def __init__(self, words="data/actual_words.txt"):
         self.previous_scores = {}
         
         if len(sys.argv) > 1:
             for arg in sys.argv:
-                if "-helper" in arg:
-                    (_, type) = arg.split("=")
-
                 if arg == "-pro":
                     words = "data/five_letter_words.txt"
         
-        # print(f"Using helper: {self.helper}")
-
         with open(words, 'r') as file:
             self.words = file.read().split("\n")
 
@@ -40,6 +36,7 @@ class Wordle:
         self.start()
 
     def start(self):
+        # Used when resetting
         self.guesses = [[" " for _ in range(5)] for _ in range(6)]
         self.results = [[TILE.BACKGROUND for _ in range(5)] for _ in range(6)]
         self.next = [0, 0]
@@ -49,20 +46,22 @@ class Wordle:
         self.suggested_words = self.words
                 
         self.target_word = choice(self.words).upper()
-        # print(self.target_word)
 
         self.guess = Smarter(self.words)
         self.data = {chr(i): [] for i in range(65, 91)}
     
+    # Bool of if the row is finished typing
     def row_typed(self):
         return self.next[1] == 5
 
+    # Enter a letter
     def add_letter(self, letter):
         if self.next[1] < 5:
             i, j = self.next
             self.guesses[i][j] = letter
             self.next[1] = j + 1
 
+    # Add a known result when guessing actual wordles
     def add_result(self, result):
         if self.next_result[1] < 5:
             i, j = self.next_result
@@ -77,6 +76,7 @@ class Wordle:
             self.results[i][j] = res
             self.next_result[1] = j + 1
 
+    # Compares the guess with the words
     def enter_guess(self, benchmarking=False, user_guessing=False):
         '''
             Returns: -1: word not in list
@@ -85,8 +85,10 @@ class Wordle:
                       2: game finished
         '''
         if user_guessing:
+            # Used when guessing actual wordles
             return self.guessing_help()
 
+        # Otherwise, compares the guess with the known word and gets the results
         done = False
         if self.next[1] < 5 or self.next[0] == 6:
             return ReturnCodes.INCOMPLETE
@@ -144,6 +146,8 @@ class Wordle:
         return ReturnCodes.NEXT
 
     def guessing_help(self):
+        # Will take the given results and use them in the helper
+        # to get a list of suggested words
         row = self.next_result[0]
 
         if self.results[row] == [TILE.CORRECT for _ in range(5)]:
@@ -166,6 +170,7 @@ class Wordle:
         return ReturnCodes.NEXT
 
     def update_cookies(self):
+        # Updates statisics used to keep track of the average score
         result = ""
         total_games = sum(self.previous_scores.values())
         score = 0
@@ -179,6 +184,7 @@ class Wordle:
         print(f"Average score is: {score/total_games}")
 
     def smarter_help(self, guess, row):
+        # Compiles all known results to get a list of suggested words
         for (i, (l, r)) in enumerate(zip(guess, self.results[row])):
             if (r, i) not in self.data[l]:
                 if r == TILE.INCORRECT and len(self.data[l]) != 0:

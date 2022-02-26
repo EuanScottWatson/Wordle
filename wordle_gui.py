@@ -7,6 +7,7 @@ from tile import TILE
 
 
 class WordleGUI:
+    # Produces a screen to play Wordle
     def __init__(self):
         self.brain = Wordle()
         self.timer = 0
@@ -41,7 +42,7 @@ class WordleGUI:
             if event.type == KEYDOWN:
                 if event.key in range(97, 123) and not self.done:
                     self.brain.add_letter(chr(event.key - 32))
-                if event.key in range(48, 51) and self.brain.row_typed():
+                if event.key in range(48, 51) and self.brain.row_typed() and self.guess:
                     self.brain.add_result(int(chr(event.key)))
                 if event.key == K_BACKSPACE and not self.done:
                     if self.brain.next[1] > 0 and self.brain.next_result[1] == 0:
@@ -74,7 +75,6 @@ class WordleGUI:
             self.done = True
         elif returnValue == ReturnCodes.BAD_WORD:
             self.timer = 60
-
 
 
 def main():

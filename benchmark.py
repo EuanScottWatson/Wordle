@@ -18,6 +18,9 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
 
 
 def best_word():
+    # Runs `total` games of Wordle with each word to get the average number of guesses
+    # needed to solve the game when starting with said word
+    # Uses this tally to see which word is best to start with on average
     wordle = Wordle()
     total = 50
     best = ("", float('inf'))
@@ -29,6 +32,7 @@ def best_word():
             done = ReturnCodes.NEXT
             guesses = 0
 
+            # Playing the game until word is found or lost
             while done == ReturnCodes.NEXT:
                 guesses += 1
                 for l in word:
@@ -52,6 +56,8 @@ def best_word():
 
 
 def all(total=1000):
+    # Determines number of guesses needed on average for this method of advising
+    # Picks next word to guess at random from the list of suggested words
     wordle = Wordle()
 
     guesses_tally = [0 for _ in range(7)]
@@ -79,13 +85,14 @@ def all(total=1000):
         guesses_tally[guesses] += 1
 
         avg = sum(map(lambda g: (g[0] + 1) * g[1], enumerate(guesses_tally))) / (i + 1)
-
         printProgressBar(i + 1, total, suffix=f"Current Average: {round(avg, 2)}")
 
+    # Plot the games
     ax1.bar(x, guesses_tally)
 
 
 def main():
+    # Use tag -best to find the best word and the tag -all to benchmark the strategy
     if sys.argv[1] == "-best":
         best_word()
     elif sys.argv[1] == "-all":
