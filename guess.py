@@ -3,6 +3,7 @@ from tile import TILE
 
 class Simple:
     # A simple helper which only takes in incorrect letters and doesn't regard wrongly placed letters
+    # No longer included in the game
     def __init__(self, world_list):
         self.word_list = world_list
 
@@ -50,6 +51,7 @@ class Smarter:
             good = True
             for (k, v) in data.items():
                 for (t, p) in v:
+                    # Check each tile to see if the current word should be included
                     if t == TILE.INCORRECT and k in word:
                         good = False
                     
@@ -62,6 +64,7 @@ class Smarter:
             if good:
                 new_words.append(word)
 
+        # Used for the actual game to update the possible word list
         if update:
             self.update_world_list(new_words)
         return new_words
